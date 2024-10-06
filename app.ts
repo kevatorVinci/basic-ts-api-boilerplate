@@ -19,12 +19,16 @@ app.use((_req, _res, next) => {
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+
+
 app.use("/users", usersRouter);
 app.use("/pizzas", pizzaRouter);
 app.use("/drinks", drinkRouter);
 
 
   
+app.use("/drinks",drinkRouter);
+
 
   
 export default app;

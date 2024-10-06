@@ -17,19 +17,19 @@ interface Drink {
   price: number;
 }
 
-interface film {
-  id: number;
-  title: string;
-  direcror: string;
-  duration:number;
-  budget:number;
-  description:String;
-  imageUrl:String;
+
+
+
+
+
+interface Drink{
+  id: number; 
+  title:string;
+  image:string;
+  volume: number;
+  price: number;
 
 }
-
-
-
 
 type NewPizza = Omit<Pizza, "id">;
 
