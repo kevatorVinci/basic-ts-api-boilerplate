@@ -20,3 +20,6 @@ Content-Type: application/json
     "price":4.5    
 }
 
+### delete 
+DELETE {{baseUrl}}/drinks/2
+
