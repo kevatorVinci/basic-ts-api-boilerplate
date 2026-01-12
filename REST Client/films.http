@@ -1,0 +1,32 @@
+### Lire tous les films
+GET http://localhost:3000/films
+
+### Lire un film par son ID (Existant)
+GET http://localhost:3000/films/1
+
+### Lire un film par son ID (Inexistant - Doit retourner 404)
+GET http://localhost:3000/films/999
+
+### Filtrer par durée minimum (Films de plus de 140 min)
+GET http://localhost:3000/films?minimum-duration=140
+
+### Créer un film (Valide)
+POST http://localhost:3000/films
+Content-Type: application/json
+
+{
+    "title": "Star Wars: Episode IV",
+    "director": "George Lucas",
+    "duration": 121,
+    "budget": 11
+}
+
+### Créer un film (Erreur: Durée négative)
+POST http://localhost:3000/films
+Content-Type: application/json
+
+{
+    "title": "Bad Movie",
+    "director": "Unknown",
+    "duration": -10
+}

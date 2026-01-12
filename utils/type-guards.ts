@@ -4,7 +4,8 @@
  * @returns
  */
 
-import { NewPizza } from "../types";
+// import { NewPizza } from "../types";
+import { NewFilm } from "../types";
 
 /**
  * Check if the value is a string and inform typescript of this
@@ -20,26 +21,47 @@ const isNumber = (value: unknown): value is number => {
   return typeof value === "number" && isFinite(value);
 };
 
-/**
- * Check if the body is a new pizza
- * @param body
- * @returns boolean
- */
-const isNewPizza = (body: unknown): body is NewPizza => {
+// /**
+//  * Check if the body is a new pizza
+//  * @param body
+//  * @returns boolean
+//  */
+// const isNewPizza = (body: unknown): body is NewPizza => {
+//   if (
+//     !body ||
+//     typeof body !== "object" ||
+//     !("title" in body) ||
+//     !("content" in body) ||
+//     body.title !== "string" ||
+//     body.content !== "string" ||
+//     !body.title.trim() ||
+//     !body.content.trim()
+//   ) {
+//     return false;
+//   }
+
+//   return true;
+// };
+
+// Cette fonction a un retour spécial : "body is NewFilm"
+// C'est une promesse qu'on fait au compilateur TS.
+const isNewFilm = (body: unknown): body is NewFilm => {
   if (
     !body ||
     typeof body !== "object" ||
     !("title" in body) ||
-    !("content" in body) ||
-    body.title !== "string" ||
-    body.content !== "string" ||
-    !body.title.trim() ||
-    !body.content.trim()
+    !("director" in body) ||
+    !("duration" in body) ||
+    typeof (body as any).title !== "string" ||
+    typeof (body as any).director !== "string" ||
+    typeof (body as any).duration !== "number" ||
+    !(body as any).title.trim() ||
+    !(body as any).director.trim() ||
+    (body as any).duration <= 0
   ) {
     return false;
   }
-
   return true;
 };
 
-export { isString, isNumber, isNewPizza };
+export { isString, isNumber, isNewFilm };
