@@ -21,30 +21,7 @@ const isNumber = (value: unknown): value is number => {
   return typeof value === "number" && isFinite(value);
 };
 
-// /**
-//  * Check if the body is a new pizza
-//  * @param body
-//  * @returns boolean
-//  */
-// const isNewPizza = (body: unknown): body is NewPizza => {
-//   if (
-//     !body ||
-//     typeof body !== "object" ||
-//     !("title" in body) ||
-//     !("content" in body) ||
-//     body.title !== "string" ||
-//     body.content !== "string" ||
-//     !body.title.trim() ||
-//     !body.content.trim()
-//   ) {
-//     return false;
-//   }
 
-//   return true;
-// };
-
-// Cette fonction a un retour spécial : "body is NewFilm"
-// C'est une promesse qu'on fait au compilateur TS.
 const isNewFilm = (body: unknown): body is NewFilm => {
   if (
     !body ||
