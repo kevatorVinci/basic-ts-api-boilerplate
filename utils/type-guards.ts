@@ -64,4 +64,43 @@ const isNewFilm = (body: unknown): body is NewFilm => {
   return true;
 };
 
-export { isString, isNumber, isNewFilm };
+const isupdateFilm = (body: unknown): body is Partial<NewFilm> => {
+  // 1. Vérif de base : body doit être un objet
+  if (!body || typeof body !== "object") {
+    return false;
+  }
+
+  // 2. Vérif du TITRE (s'il est là)
+  if ("title" in body) {
+    // Si ce n'est pas une string OU si c'est vide
+    if (typeof (body as any).title !== "string" || !(body as any).title.trim()) {
+      return false;
+    }
+  }
+
+  // 3. Vérif du RÉALISATEUR (s'il est là)
+  if ("director" in body) {
+    if (typeof (body as any).director !== "string" || !(body as any).director.trim()) {
+      return false;
+    }
+  }
+
+  // 4. Vérif de la DURÉE (si elle est là)
+  if ("duration" in body) {
+    // Si ce n'est pas un nombre OU si c'est négatif/zéro
+    if (typeof (body as any).duration !== "number" || (body as any).duration <= 0) {
+      return false;
+    }
+  }
+
+  // 5. Vérif du BUDGET (si il est là)
+  if ("budget" in body) {
+    if (typeof (body as any).budget !== "number" || (body as any).budget < 0) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
+export { isString, isNumber, isNewFilm, isupdateFilm };

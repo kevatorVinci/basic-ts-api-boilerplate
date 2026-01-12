@@ -28,5 +28,67 @@ Content-Type: application/json
 {
     "title": "Bad Movie",
     "director": "Unknown",
-    "duration": -10
+    "duration": 10
 }
+
+@baseUrl = http://localhost:3000
+
+### -------------------------------------------------------------------------
+### SCÉNARIO 1 : PUT - Remplacement TOTAL
+### On remplace tout le film ID 1 (Inception).
+### ⚠️ Si on oublie "director" ou "duration", ça plantera (Erreur 400) !
+### -------------------------------------------------------------------------
+PUT {{baseUrl}}/films/1
+Content-Type: application/json
+
+{
+    "title": "Inception : Director's Cut",
+    "director": "Christopher Nolan",
+    "duration": 180,
+    "budget": 200,
+    "description": "Version longue avec encore plus de rêves.",
+    "imageUrl": "https://example.com/inception-v2.jpg"
+}
+
+### -------------------------------------------------------------------------
+### SCÉNARIO 2 : PATCH - Modification PARTIELLE
+### On change JUSTE le titre du film ID 2 (Matrix).
+### Le réalisateur et la durée ne changent pas (ils restent comme avant).
+### -------------------------------------------------------------------------
+PATCH {{baseUrl}}/films/2
+Content-Type: application/json
+
+{
+    "title": "The Matrixe (Remastered)"
+}
+
+### -------------------------------------------------------------------------
+### SCÉNARIO 3 : PATCH - Modification PARTIELLE (Plusieurs champs)
+### On change la durée et le budget du film ID 3.
+### -------------------------------------------------------------------------
+PATCH {{baseUrl}}/films/3
+Content-Type: application/json
+
+{
+    "duration": 100,
+    "budget": 5
+}
+
+### -------------------------------------------------------------------------
+### SCÉNARIO 4 : Test d'erreur (404 Not Found)
+### On essaie de modifier un film qui n'existe pas.
+### -------------------------------------------------------------------------
+PUT {{baseUrl}}/films/9999
+Content-Type: application/json
+
+{
+    "title": "Ghost Movie",
+    "director": "Casper",
+    "duration": 90
+}
+
+### -------------------------------------------------------------------------
+### VÉRIFICATION
+### On relit tout pour voir si les changements sont bien là !
+### -------------------------------------------------------------------------
+GET {{baseUrl}}/films

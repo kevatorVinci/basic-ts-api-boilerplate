@@ -1,6 +1,6 @@
 import { Film,NewFilm } from "../types";
 import { Router } from "express";
-import { isNewFilm } from "../utils/type-guards";
+import { isNewFilm , isupdateFilm} from "../utils/type-guards";
 
 const router = Router();
 
@@ -74,7 +74,6 @@ router.post("/", (req, res) => {
   if (!isNewFilm(body)) {
     return res.sendStatus(400);
   }
-  
 
  // 1. On "cast" le body maintenant qu'on sait qu'il est valide
   const { title, director, duration, budget, description, imageUrl } = body as NewFilm;
@@ -98,6 +97,65 @@ router.post("/", (req, res) => {
   films.push(newFilm);
   return res.status(201).json(newFilm);
 });
+
+router.delete("/:id", (req, res) => {
+  const filmId = parseInt(req.params.id);
+  const filmIndex = films.findIndex(f => f.id === filmId);
+  if (filmIndex === -1) {
+    return res.status(404).json({ message: "Film not found" });
+  }
+  films.splice(filmIndex, 1);
+  return res.sendStatus(204);
+});
+
+router.put("/:id", (req, res) => {
+  const filmId = parseInt(req.params.id);
+  const body: unknown = req.body;
+  if (!isNewFilm(body)) {
+    return res.sendStatus(400);
+  }
+
+  const filmIndex = films.findIndex(f => f.id === filmId);
+  if (filmIndex === -1) {
+    return res.status(404).json({ message: "Film not found" });
+  }
+  const { title, director, duration, budget, description, imageUrl } = body as NewFilm;
+  const updatedFilm: Film = {
+    id: filmId,
+    title,
+    director,
+    duration,
+    budget,
+    description,
+    imageUrl,
+  };
+  films[filmIndex] = updatedFilm;
+  return res.json(updatedFilm);
+});
+
+router.patch("/:id", (req, res) => {
+  const filmId = parseInt(req.params.id);
+  const body: Partial<NewFilm> = req.body;
+  const filmIndex = films.findIndex(f => f.id === filmId);
+  if (filmIndex === -1) {
+    return res.status(404).json({ message: "Film not found" });
+  }
+
+  if (!isupdateFilm(body)) {
+    return res.sendStatus(400);
+  }
+  
+  const existingFilm = films[filmIndex];
+  
+  const updatedFilm: Film = {
+    ...existingFilm,
+    ...body
+  };
+  films[filmIndex] = updatedFilm;
+  return res.json(updatedFilm);
+});
+
+
 
 
 
