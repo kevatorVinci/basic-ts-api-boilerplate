@@ -1,73 +1,32 @@
-import { Film,NewFilm } from "../types";
 import { Router } from "express";
-import { isNewFilm , isupdateFilm} from "../utils/type-guards";
-import { parse, serialize } from "../utils/json";
-import path from "node:path";
-
-const jsonDbPath = path.join(__dirname, "/../data/drinks.json");
+import { NewFilm } from "../types";
+// On importe les validateurs (Type Guards)
+import { isNewFilm, isupdateFilm } from "../utils/type-guards"; // Assure-toi du nom dans type-guards.ts
+// On importe le Service (Le Cuisinier)
+import {
+  createOneFilm,
+  deleteOneFilm,
+  readAllFilms,
+  readOneFilm,
+  updateOneFilm,
+} from "../services/films";
 
 const router = Router();
 
-const defaultFilms: Film[] = [
-  {
-    id: 1,
-    title: "Inception",
-    director: "Christopher Nolan",
-    duration: 148,
-    budget: 160,
-    description: "A thief who steals corporate secrets through the use of dream-sharing technology...",
-    imageUrl: "https://example.com/inception.jpg"
-  },
-  {
-    id: 2,
-    title: "The Matrix",
-    director: "Lana Wachowski, Lilly Wachowski",
-    duration: 136,
-    budget: 63
-    // Note : description et imageUrl sont absents ici, c'est autorisé car optionnels !
-  },
-  {
-    id: 3,
-    title: "Interstellar",
-    director: "Christopher Nolan",
-    duration: 169,
-    imageUrl: "https://example.com/interstellar.jpg"
-  }
-];
-
+// GET /films
 router.get("/", (req, res) => {
-  // 1. ⚠️ SUPER IMPORTANT : On fait une COPIE de la liste originale.
-  // On ne touche JAMAIS à la variable globale 'films' pour du filtrage temporaire.
- let result = parse(jsonDbPath, defaultFilms);
+  // On passe juste les paramètres au service, il se débrouille !
+  const titleStart = req.query["title-start"] as string;
+  const orderBy = req.query["order-by"] as string;
 
-  // Récupérer les paramètres
-  const titleStart = req.query['title-start'];
-  const orderBy = req.query['order-by'];
-
-  // 2. Étape de Filtrage (Indépendante)
-  if (titleStart && typeof titleStart === 'string') {
-    result = result.filter(film =>
-      film.title.toLowerCase().startsWith(titleStart.toLowerCase())
-    );
-  }
-
-  // 3. Étape de Tri (Indépendante et après le filtrage)
-  if (orderBy && typeof orderBy === 'string') {
-    result.sort((a, b) => {
-      if (orderBy === 'title') return a.title.localeCompare(b.title);
-      if (orderBy === 'duration') return a.duration - b.duration;
-      return 0;
-    });
-  }
-
-  // 4. On renvoie le RÉSULTAT (la copie modifiée), pas l'original
-  return res.json(result);
+  const films = readAllFilms(titleStart, orderBy);
+  return res.json(films);
 });
 
+// GET /films/:id
 router.get("/:id", (req, res) => {
-  const filmId = parseInt(req.params.id);
-  const films = parse(jsonDbPath, defaultFilms);
-  const film = films.find(f => f.id === filmId);
+  const id = Number(req.params.id);
+  const film = readOneFilm(id);
 
   if (!film) {
     return res.status(404).json({ message: "Film not found" });
@@ -75,107 +34,64 @@ router.get("/:id", (req, res) => {
   return res.json(film);
 });
 
+// POST /films
 router.post("/", (req, res) => {
-  const films = parse(jsonDbPath, defaultFilms);
   const body: unknown = req.body;
+
   if (!isNewFilm(body)) {
     return res.sendStatus(400);
   }
 
- // 1. On "cast" le body maintenant qu'on sait qu'il est valide
-  const { title, director, duration, budget, description, imageUrl } = body as NewFilm;
-
-  // 2. Calcul de l'ID sécurisé (avec reduce, pas length !)
-  const nextId =
-    films.reduce((maxId, film) => (film.id > maxId ? film.id : maxId), 0) + 1;
-
-  // 3. Création du VRAI objet Film (avec son ID)
-  const newFilm: Film = {
-    id: nextId,
-    title,
-    director,
-    duration,
-    budget,
-    description,
-    imageUrl,
-  };
-
-  // 4. Ajout à la liste et réponse
-  films.push(newFilm);
-  serialize(jsonDbPath, films);
+  const newFilm = createOneFilm(body as NewFilm);
   return res.status(201).json(newFilm);
 });
 
+// DELETE /films/:id
 router.delete("/:id", (req, res) => {
-  const filmId = parseInt(req.params.id);
-  const films = parse(jsonDbPath, defaultFilms);
-  const filmIndex = films.findIndex(f => f.id === filmId);
-  if (filmIndex === -1) {
+  const id = Number(req.params.id);
+  const deletedFilm = deleteOneFilm(id);
+
+  if (!deletedFilm) {
     return res.status(404).json({ message: "Film not found" });
   }
-  films.splice(filmIndex, 1);
-  serialize(jsonDbPath, films);
   return res.sendStatus(204);
 });
 
+// PUT /films/:id (Remplacement total)
 router.put("/:id", (req, res) => {
-  const films = parse(jsonDbPath, defaultFilms);
-  const filmId = parseInt(req.params.id);
+  const id = Number(req.params.id);
   const body: unknown = req.body;
+
+  // PUT exige que TOUT soit présent, donc on utilise isNewFilm
   if (!isNewFilm(body)) {
     return res.sendStatus(400);
   }
 
-  const filmIndex = films.findIndex(f => f.id === filmId);
-  if (filmIndex === -1) {
+  // On appelle la fonction d'update avec toutes les données
+  const updatedFilm = updateOneFilm(id, body as NewFilm);
+
+  if (!updatedFilm) {
     return res.status(404).json({ message: "Film not found" });
   }
-  const { title, director, duration, budget, description, imageUrl } = body as NewFilm;
-  const updatedFilm: Film = {
-    id: filmId,
-    title,
-    director,
-    duration,
-    budget,
-    description,
-    imageUrl,
-  };
-  films[filmIndex] = updatedFilm;
-  serialize(jsonDbPath, films);
   return res.json(updatedFilm);
 });
 
+// PATCH /films/:id (Mise à jour partielle)
 router.patch("/:id", (req, res) => {
-  const films = parse(jsonDbPath, defaultFilms);
-  const filmId = parseInt(req.params.id);
-  const body: Partial<NewFilm> = req.body;
-  const filmIndex = films.findIndex(f => f.id === filmId);
-  if (filmIndex === -1) {
-    return res.status(404).json({ message: "Film not found" });
-  }
+  const id = Number(req.params.id);
+  const body: unknown = req.body;
 
-  if (!isupdateFilm(body)) {
+  // PATCH accepte des bouts de données, on utilise le validateur partiel
+  if (!isupdateFilm(body)) { // (C'est ton isupdateFilm)
     return res.sendStatus(400);
   }
-  
-  const existingFilm = films[filmIndex];
-  
-  const updatedFilm: Film = {
-    ...existingFilm,
-    ...body
-  };
-  films[filmIndex] = updatedFilm;
-  serialize(jsonDbPath, films);
+
+  const updatedFilm = updateOneFilm(id, body);
+
+  if (!updatedFilm) {
+    return res.status(404).json({ message: "Film not found" });
+  }
   return res.json(updatedFilm);
 });
 
-
-
-
-
 export default router;
-
-
-
-
-
