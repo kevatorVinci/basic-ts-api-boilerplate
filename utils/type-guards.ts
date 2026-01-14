@@ -5,7 +5,7 @@
  */
 
 // import { NewPizza } from "../types";
-import { NewFilm } from "../types";
+import { NewFilm,NewLivre } from "../types";
 
 /**
  * Check if the value is a string and inform typescript of this
@@ -79,5 +79,54 @@ const isupdateFilm = (body: unknown): body is Partial<NewFilm> => {
 
   return true;
 };
+const acceptedLevels = ["easy", "medium", "hard"];
 
-export { isString, isNumber, isNewFilm, isupdateFilm };
+const isNewLivre = (body: unknown): body is NewLivre => {
+  if (
+    !body ||
+    typeof body !== "object" ||
+    !("content" in body) ||
+    !("level" in body) ||
+    typeof (body as any).content !== "string" ||
+    typeof (body as any).level !== "string" ||
+    !(body as any).content.trim() ||
+    !(body as any).level.trim() ||
+    // 👇 NOUVEAU CHECK ICI 👇
+    !acceptedLevels.includes((body as any).level)
+  ) {
+    return false;
+  }
+  return true;
+};
+
+const isUpdateLivre = (body: unknown): body is Partial<NewLivre> => {
+  if (!body || typeof body !== "object") {
+    return false;
+  }
+
+  if ("content" in body) {
+    // ⚠️ ATTENTION : J'ai ajouté le '!' devant trim() !
+    if (
+      typeof (body as any).content !== "string" ||
+      !(body as any).content.trim()
+    ) {
+      return false;
+    }
+  }
+
+  if ("level" in body) {
+    // ⚠️ ATTENTION : J'ai ajouté le '!' devant trim() !
+    if (
+      typeof (body as any).level !== "string" ||
+      !(body as any).level.trim() ||
+      // 👇 NOUVEAU CHECK ICI 👇
+      !acceptedLevels.includes((body as any).level)
+    ) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
+export { isString, isNumber, isNewFilm, isupdateFilm,isNewLivre,isUpdateLivre };

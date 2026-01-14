@@ -1,0 +1,53 @@
+@baseUrl = http://localhost:3000/livres
+
+### 1. Lire tous les livres
+GET {{baseUrl}}
+
+### 2. Lire avec filtre (level=hard)
+GET {{baseUrl}}?level=hard
+
+### 3. Lire un livre spécifique (ID existant)
+GET {{baseUrl}}/e838979d-9538-4444-9372-9e96e9f5e123
+
+### 4. Lire un livre inconnu (Doit retourner 404)
+GET {{baseUrl}}/id-qui-n-existe-pas
+
+### 5. Créer un nouveau livre (Valide)
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+    "content": "Ceci est un test REST Client",
+    "level": "easy"
+}
+
+### 6. Créer un livre invalide (Pas de content -> 400)
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+    "level": "hard"
+}
+
+### 7. Créer un livre invalide (Level inconnu -> 400)
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+    "content": "Test hack",
+    "level": "impossible"
+}
+
+### 8. Mettre à jour un livre (PUT)
+# Remplace l'ID ci-dessous par un ID que tu as créé
+PUT {{baseUrl}}/e838979d-9538-4444-9372-9e96e9f5e123
+Content-Type: application/json
+
+{
+    "content": "Hello World Modifié !",
+    "level": "hard"
+}
+
+### 9. Supprimer un livre
+# Utilise un ID existant
+DELETE {{baseUrl}}/e838979d-9538-4444-9372-9e96e9f5e123

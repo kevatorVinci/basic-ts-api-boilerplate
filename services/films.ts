@@ -27,7 +27,7 @@ const defaultFilms: Film[] = [
     director: "Christopher Nolan",
     duration: 169,
     imageUrl: "https://example.com/interstellar.jpg",
-  },
+  }
 ];
 
 // 🔍 LIRE TOUT (avec Filtres et Tri)

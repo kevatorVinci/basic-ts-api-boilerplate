@@ -1,7 +1,8 @@
 import express, { ErrorRequestHandler } from "express";
 
 
-import filmRouter from "./routes/films";
+
+import livreRouter from "./routes/livres";
 
 const app = express();
 
@@ -33,7 +34,8 @@ app.use((req, _res, next) => {
     next();
 });
 
-app.use("/films", filmRouter);
+
+app.use("/livres",livreRouter);
 
 // 3. Définir le gestionnaire d'erreurs (TOUT À LA FIN, juste avant l'export)
 const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
